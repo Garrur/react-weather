@@ -77,7 +77,7 @@ export const CitiesTable: FC = () => {
           <input
             onChange={handleSearch}
             value={search}
-            className="placeholder:italic placeholder-text-slate-400 block bg-white w-full sm:w-64 border border-slate-300 rounded-md py-2 pl-9 pr-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 text-sm"
+            className=" hover:scale-110 placeholder:italic placeholder-text-slate-400 block bg-white w-full sm:w-64 border border-slate-300 rounded-md py-2 pl-9 pr-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 text-sm"
             placeholder="Search for city..."
             type="text"
             name="search"
@@ -91,7 +91,7 @@ export const CitiesTable: FC = () => {
               <div className="overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead>
-                    <tr>
+                    <tr className="underline ">
                       <th
                         scope="col"
                         className="px-6 py-3 text-start text-base font-semibold text-gray-500 uppercase cursor-pointer"
@@ -117,8 +117,8 @@ export const CitiesTable: FC = () => {
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {sortedCities.map((city:City, i) => (
-                      <tr className="hover:bg-gray-100" key={i}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 cursor-pointer">
+                      <tr className="hover:bg-gray-100 shadow-l" key={i}>
+                        <td className="px-6 py-4 whitespace-nowrap border text-sm font-medium text-gray-800 cursor-pointer  hover:animate-pulse">
                           <Link to={`/weather/${city.name}`} target="_blank">
                             {city.name}
                           </Link>

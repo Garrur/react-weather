@@ -1,15 +1,19 @@
 // WeatherPage.tsx
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import axios from "axios";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import WeatherSkeleton from "../skeleton/skeleton";
-import { WiDaySunny, WiRain, WiCloudy, WiShowers } from 'react-icons/wi';
 
-import sunnyBackground from "../assets/sunny.jpg";
-import rainyBackground from "../assets/rain.jpg";
+import clear from "../assets/clear.jpg";
 import cloudyBackground from "../assets/cloud.jpg";
 import drizzleBackground from "../assets/drizzle.jpg";
-import clear from "../assets/clear.jpg";
+import rainyBackground from "../assets/rain.jpg";
+import sunnyBackground from "../assets/sunny.jpg";
+
+import cloudIcon from "../assets/icons/cloudy.png";
+import sunnyIcon from "../assets/icons/sun.png";
+import rainIcon  from "../assets/icons/rainy-day.png";
+import drizzleIcon from "../assets/icons/drizzle.png";
 
 // Define interfaces for weather data and API response
 interface Weather {
@@ -34,6 +38,7 @@ interface WeatherAPIResponse {
   };
 }
 
+
 const apikey: string = process.env.REACT_APP_API_KEY ?? "" ;
 
 
@@ -42,6 +47,10 @@ export const WeatherPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const { cityName } = useParams<{ cityName: string }>();
+  const [wIcons, setWIcons] = useState<string>('');
+  const [currentDate, setCurrentDate] = useState("")
+
+
 
   useEffect(() => {
     const fetchWeatherData = async () => {
@@ -58,6 +67,36 @@ export const WeatherPage = () => {
     };
     fetchWeatherData();
   }, [cityName]);
+
+  useEffect(() => {
+ if (weatherdata && weatherdata.weather){
+  const weatherIcons = weatherdata?.weather[0].main
+
+      if ( weatherIcons === "Clouds"){
+        setWIcons(cloudIcon)
+      }else if (weatherIcons === "Rain"){
+        setWIcons(rainIcon)
+      }else if (weatherIcons === "Clear"){
+        setWIcons(sunnyIcon)
+      }else if (weatherIcons === "Drizzle"){
+        setWIcons(drizzleIcon)
+      }else{
+        setWIcons(sunnyIcon)
+      }
+ }
+ const date = new Date()
+
+ const options: Intl.DateTimeFormatOptions = {
+  weekday: "long",
+  year: "numeric",
+  month: "long",
+  day: "numeric"
+};
+
+setCurrentDate(date.toLocaleDateString("en-US", options));
+
+      
+  },[weatherdata])
 
   const selectBackground = (): string => {
     if (weatherdata && weatherdata.weather && weatherdata.weather.length > 0) {
@@ -78,33 +117,35 @@ export const WeatherPage = () => {
     }
   };
 
+
+
   return (
     <div>
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundImage: `url(${selectBackground()})` }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundImage: `url(${selectBackground()})` , backgroundSize:"cover", backgroundPosition:"center" }}>
         {loading && <WeatherSkeleton />}
         {weatherdata && !error && !loading && (
-          <div className="flex flex-col bg-white rounded p-4 w-full max-w-xs shadow-2xl border-2 hover:bg-sky-100">
+          <div className="flex flex-col bg-white rounded p-4 w-full max-w-md shadow-2xl border-2 hover:bg-slate-200 hover:scale-150">
             <div className="font-bold text-xl">{cityName}</div>
-            <div className="text-sm text-gray-500">{new Date().toDateString()}</div>
-            <div className="mt-6 text-6xl self-center inline-flex items-center justify-center rounded-lg text-indigo-400 h-24 w-24">
-              {weatherdata.weather[0].main === 'Clear' && <WiDaySunny />}
-              {weatherdata.weather[0].main === 'Rain' && <WiRain />}
-              {weatherdata.weather[0].main === 'Clouds' && <WiCloudy />}
-              {weatherdata.weather[0].main === 'Drizzle' && <WiShowers />}
+            <div className="text-sm text-gray-500">{currentDate}</div>
+            <div className="mt-6 text-6xl self-center inline-flex items-center justify-center rounded-lg text-indigo-400 h-full w-full">
+             {/* ICONS */} 
+             <div className=" h-48 w-48 animate-pulse   ">
+             <img src={wIcons} alt="" />
+              </div> 
             </div>
             <div className="flex flex-row items-center justify-center mt-6">
               {weatherdata && !error && (
                 <>
-                  <div className="font-medium text-6xl">{(weatherdata.main.temp - 273.15).toFixed(1)}°c</div>
+                  <div className="font-medium text-8xl">{(weatherdata.main.temp - 273.15).toFixed(1)}°c</div>
                   <div className="flex flex-col items-center ml-6">
-                    <div>{weatherdata.weather[0].main}</div>
+                    <div className="underline font-semibold">{weatherdata.weather[0].main}</div>
                     <div className="mt-1">
                       <span className="text-sm"><i className="far fa-long-arrow-up" /></span>
-                      <span className="text-sm font-light text-gray-500">Max - {(weatherdata.main.temp_max - 273.15).toFixed(1)}°c </span>
+                      <span className="text-sm font-medium text-black">Max - {(weatherdata.main.temp_max - 273.15).toFixed(1)}°c </span>
                     </div>
                     <div>
                       <span className="text-sm"><i className="far fa-long-arrow-down" /></span>
-                      <span className="text-sm font-light text-gray-500">Min - {(weatherdata.main.temp_min - 273.15).toFixed(1)}°c  </span>
+                      <span className="text-sm font-medium text-black">Min - {(weatherdata.main.temp_min - 273.15).toFixed(1)}°c  </span>
                     </div>
                   </div>
                 </>
