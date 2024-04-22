@@ -124,7 +124,7 @@ setCurrentDate(date.toLocaleDateString("en-US", options));
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundImage: `url(${selectBackground()})` , backgroundSize:"cover", backgroundPosition:"center" }}>
         {loading && <WeatherSkeleton />}
         {weatherdata && !error && !loading && (
-          <div className="flex flex-col bg-white rounded p-4 w-full max-w-md shadow-2xl border-2 hover:bg-slate-200 hover:scale-150">
+          <div className="flex flex-col bg-white rounded p-4 w-full max-w-md shadow-2xl border-2 hover:bg-slate-200 hover:scale-125">
             <div className="font-bold text-xl">{cityName}</div>
             <div className="text-sm text-gray-500">{currentDate}</div>
             <div className="mt-6 text-6xl self-center inline-flex items-center justify-center rounded-lg text-indigo-400 h-full w-full">
