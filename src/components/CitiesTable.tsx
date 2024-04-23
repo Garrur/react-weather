@@ -1,32 +1,43 @@
-import React, { FC, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
-// Define interface for city data
 interface City {
   name: string;
   cou_name_en: string;
   timezone: string;
 }
 
-export const CitiesTable: FC = () => {
+export const CitiesTable: React.FC = () => {
   const [cities, setCities] = useState<City[]>([]);
   const [search, setSearch] = useState<string>('');
   const [cityData, setCityData] = useState<City[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [sortConfig, setSortConfig] = useState<{ key: string | null; direction: string }>({ key: null, direction: 'ascending' });
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [current, setCurrent] = useState<number>(1);
 
   useEffect(() => {
-    const getCityData = async () => {
-      try {
-        const response = await axios.get<{ results: City[] }>("https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/geonames-all-cities-with-a-population-1000/records?limit=100&page=${page}");
-        setCities(response.data.results);
-      } catch (error) {
-        setError("Failed to fetch city data. Please try again.");
-      }
-    };
     getCityData();
   }, []);
+
+  const getCityData = async () => {
+    try {
+      const response = await axios.get(`https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/geonames-all-cities-with-a-population-1000/records?limit=10&offset=${(current - 1) * 20}`);
+      const newCity: City[] = response.data.results;
+
+      setCities((prevCity) => [...prevCity, ...newCity]);
+      if (newCity.length === 0) {
+        setHasMore(false);
+      }
+
+      // check for more data to load
+      setCurrent((prevPage) => prevPage + 1);
+    } catch (error) {
+      setError("Failed to fetch city data. Please try again.");
+    }
+  };
 
   useEffect(() => {
     const filteredCities = cities.filter((city) =>
@@ -77,7 +88,7 @@ export const CitiesTable: FC = () => {
           <input
             onChange={handleSearch}
             value={search}
-            className=" hover:scale-110 placeholder:italic placeholder-text-slate-400 block bg-white w-full sm:w-64 border border-slate-300 rounded-md py-2 pl-9 pr-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 text-sm"
+            className="placeholder:italic placeholder-text-slate-400 block bg-white w-full sm:w-64 border border-slate-300 rounded-md py-2 pl-9 pr-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 text-sm"
             placeholder="Search for city..."
             type="text"
             name="search"
@@ -89,50 +100,58 @@ export const CitiesTable: FC = () => {
           <div className="-m-1.5 overflow-x-auto">
             <div className="p-1.5 min-w-full inline-block align-middle">
               <div className="overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead>
-                    <tr className="underline ">
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-start text-base font-semibold text-gray-500 uppercase cursor-pointer"
-                        onClick={() => handleSort('name')}
-                      >
-                        CityName
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-start text-base font-semibold text-gray-500 uppercase cursor-pointer"
-                        onClick={() => handleSort('cou_name_en')}
-                      >
-                        Country
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-start text-base font-semibold text-gray-500 uppercase cursor-pointer"
-                        onClick={() => handleSort('timezone')}
-                      >
-                        TimeZone
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {sortedCities.map((city:City, i) => (
-                      <tr className="hover:bg-gray-100 shadow-l" key={i}>
-                        <td className="px-6 py-4 whitespace-nowrap border text-sm font-medium text-gray-800 cursor-pointer  hover:animate-pulse">
-                          <Link to={`/weather/${city.name}`} target="_blank">
-                            {city.name}
-                          </Link>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                          {city.cou_name_en}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                          {city.timezone}
-                        </td>
+                <InfiniteScroll
+                  dataLength={cities.length}
+                  next={getCityData}
+                  hasMore={hasMore}
+                  loader={<h4>Loading..</h4>}
+                  endMessage={<p style={{ textAlign: "center" }}><b>No More City</b></p>}
+                >
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead>
+                      <tr>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-start text-base font-semibold text-gray-500 uppercase cursor-pointer"
+                          onClick={() => handleSort('name')}
+                        >
+                          CityName
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-start text-base font-semibold text-gray-500 uppercase cursor-pointer"
+                          onClick={() => handleSort('cou_name_en')}
+                        >
+                          Country
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-start text-base font-semibold text-gray-500 uppercase cursor-pointer"
+                          onClick={() => handleSort('timezone')}
+                        >
+                          TimeZone
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {sortedCities.map((city, i) => (
+                        <tr className="hover:bg-gray-100" key={i}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 cursor-pointer">
+                            <Link to={`/weather/${city.name}`} target="_blank">
+                              {city.name}
+                            </Link>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {city.cou_name_en}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                            {city.timezone}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </InfiniteScroll>
               </div>
             </div>
           </div>
