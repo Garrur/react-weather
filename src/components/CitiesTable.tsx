@@ -41,7 +41,7 @@ export const CitiesTable: React.FC = () => {
       }
 
 
-    },5000)
+    },2000)
     
   };
 
