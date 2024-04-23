@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { Link } from 'react-router-dom';
 
 interface City {
   name: string;
@@ -22,21 +22,27 @@ export const CitiesTable: React.FC = () => {
     getCityData();
   }, []);
 
-  const getCityData = async () => {
-    try {
-      const response = await axios.get(`https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/geonames-all-cities-with-a-population-1000/records?limit=10&offset=${(current - 1) * 20}`);
-      const newCity: City[] = response.data.results;
+  const getCityData = () => {
 
-      setCities((prevCity) => [...prevCity, ...newCity]);
-      if (newCity.length === 0) {
-        setHasMore(false);
+    setTimeout(async() => {
+      try {
+        const response = await axios.get(`https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/geonames-all-cities-with-a-population-1000/records?limit=10&offset=${(current - 1) * 20}`);
+        const newCity: City[] = response.data.results;
+  
+        setCities((prevCity) => [...prevCity, ...newCity]);
+        if (newCity.length === 0) {
+          setHasMore(false);
+        }
+  
+        // check for more data to load
+        setCurrent((prevPage) => prevPage + 1);
+      } catch (error) {
+        setError("Failed to fetch city data. Please try again.");
       }
 
-      // check for more data to load
-      setCurrent((prevPage) => prevPage + 1);
-    } catch (error) {
-      setError("Failed to fetch city data. Please try again.");
-    }
+
+    },5000)
+    
   };
 
   useEffect(() => {
@@ -65,6 +71,13 @@ export const CitiesTable: React.FC = () => {
       return a[sortConfig.key as keyof City] < b[sortConfig.key as keyof City] ? 1 : -1;
     }
   });
+
+  const handleRightClick = (e: React.MouseEvent<HTMLTableDataCellElement, MouseEvent>, cityName: string) => { 
+    if (e.button === 2) {
+      window.open(`/weather/${cityName}`, "_blank");
+    }
+  };
+  
 
   return (
     <div className="container mx-auto mt-20 p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12">
@@ -104,7 +117,7 @@ export const CitiesTable: React.FC = () => {
                   dataLength={cities.length}
                   next={getCityData}
                   hasMore={hasMore}
-                  loader={<h4>Loading..</h4>}
+                  loader={<h4 className="text-center text-xl font-bold animate-pulse">Loading...</h4>}
                   endMessage={<p style={{ textAlign: "center" }}><b>No More City</b></p>}
                 >
                   <table className="min-w-full divide-y divide-gray-200">
@@ -136,7 +149,7 @@ export const CitiesTable: React.FC = () => {
                     <tbody className="divide-y divide-gray-200">
                       {sortedCities.map((city, i) => (
                         <tr className="hover:bg-gray-100" key={i}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 cursor-pointer">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 cursor-pointer" onContextMenu={(e)=>handleRightClick(e, city.name)}>
                             <Link to={`/weather/${city.name}`} target="_blank">
                               {city.name}
                             </Link>
