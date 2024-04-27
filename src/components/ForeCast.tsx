@@ -17,6 +17,7 @@ interface ForecastDataItem {
       temp: number;
     };
     weather: {
+      description: string;
       main: string;
     }[];
   }
@@ -94,14 +95,14 @@ const option: Intl.DateTimeFormatOptions = {
                                         <div key ={index} className="flex flex-col xl:gap-2 items-center text-black">
                                             <p className="font-semibold shadow-xl">{forecastDate}</p>
                                             <img src={weatherIcon} alt='cloud' className='animate-pulse w-[100px]' />
-                                            <p className="underline text-left"> {day.weather[0].main}</p>
+                                            <p className="underline text-left"> {day.weather[0].description}</p>
                                             <div className="mr-4 ">
                                                 <p className="font-semibold">{(day.main.temp- 273.15).toFixed(1)}°c </p>
                                             </div>
                                             <div className="flex ">
-                                                    <p className="font-thin shadow-md border-slate-300 border  text-sm">Max Temp-{(day.main.temp_max- 273.15).toFixed(1)}°c </p>
+                                                    <p className="font-thin shadow-md border-slate-300 border  font-light">Max Temp-{(day.main.temp_max- 273.15).toFixed(1)}°c </p>
                                                     <p className="pr-3"></p>
-                                                    <p className="font-thin shadow-md border-slate-300 border text-sm">Max Temp-{(day.main.temp_min- 273.15).toFixed(1)}°c </p>
+                                                    <p className="font-thin shadow-md border-slate-300 border font-light">Max Temp-{(day.main.temp_min- 273.15).toFixed(1)}°c </p>
                                             </div>
                                             
 
