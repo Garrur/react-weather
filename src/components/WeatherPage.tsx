@@ -14,6 +14,7 @@ import cloudIcon from "../assets/icons/cloudy.png";
 import sunnyIcon from "../assets/icons/sun.png";
 import rainIcon  from "../assets/icons/rainy-day.png";
 import drizzleIcon from "../assets/icons/drizzle.png";
+import ForeCast from "./ForeCast";
 
 // Define interfaces for weather data and API response
 interface Weather {
@@ -121,7 +122,7 @@ setCurrentDate(date.toLocaleDateString("en-US", options));
 
   return (
     <div>
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundImage: `url(${selectBackground()})` , backgroundSize:"cover", backgroundPosition:"center" }}>
+      <div className="min-h-screen flex items-center justify-center gap-5 flex-col sm:flex-row xl:flex-col" style={{ backgroundImage: `url(${selectBackground()})` , backgroundSize:"cover", backgroundPosition:"center" }}>
         {loading && <WeatherSkeleton />}
         {weatherdata && !error && !loading && (
           <div className="flex flex-col bg-white rounded p-4 w-full max-w-md shadow-2xl border-2 hover:bg-slate-200 hover:scale-125">
@@ -172,6 +173,7 @@ setCurrentDate(date.toLocaleDateString("en-US", options));
           </div>
         )}
         {error && !loading && <div>{error}</div>}
+        {weatherdata && !error && !loading && <ForeCast />}
       </div>
     </div>
   );
