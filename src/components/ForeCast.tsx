@@ -9,8 +9,11 @@ import drizzleIcon from "../assets/icons/drizzle.png";
 import axios from "axios";
 
 interface ForecastDataItem {
+    pop: number;
     dt_txt: string;
     main: {
+      temp_min: number;
+      temp_max: number;
       temp: number;
     };
     weather: {
@@ -86,15 +89,27 @@ const option: Intl.DateTimeFormatOptions = {
 
                             return (
                                 <>
-                                    <div className=" border border-slate-700 border-y-4  border-x-4 rounded-lg bg-slate-300 shadow-lg">
+                                <div >
+                                   <div className=" border border-slate-700 border-y-4  border-x-4 rounded-lg bg-slate-300 shadow-lg hover:scale-110">
                                         <div key ={index} className="flex flex-col xl:gap-2 items-center text-black">
-                                            <p className="font-semibold">{forecastDate}</p>
+                                            <p className="font-semibold shadow-xl">{forecastDate}</p>
                                             <img src={weatherIcon} alt='cloud' className='animate-pulse w-[100px]' />
-                                            <p className="underline"> {day.weather[0].main}</p>
-                                            <p className="font-semibold">{(day.main.temp- 273.15).toFixed(1)}°c </p>
-                                            <p></p>
+                                            <p className="underline text-left"> {day.weather[0].main}</p>
+                                            <div className="mr-4 ">
+                                                <p className="font-semibold">{(day.main.temp- 273.15).toFixed(1)}°c </p>
+                                            </div>
+                                            <div className="flex ">
+                                                    <p className="font-thin shadow-md border-slate-300 border  text-sm">Max Temp-{(day.main.temp_max- 273.15).toFixed(1)}°c </p>
+                                                    <p className="pr-3"></p>
+                                                    <p className="font-thin shadow-md border-slate-300 border text-sm">Max Temp-{(day.main.temp_min- 273.15).toFixed(1)}°c </p>
+                                            </div>
+                                            
+
+
+                                            <p>{day.pop * 100} %</p>
                                         </div>
                                     </div>
+                                </div>    
                                 </>
                             )
                             
